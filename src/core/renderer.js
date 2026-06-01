@@ -19,7 +19,7 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.shadowMap.enabled = true
 
 // Luz ambiente
-const ambientLight = new THREE.AmbientLight(0x111111, 1)
+const ambientLight = new THREE.AmbientLight(0x111111, 0.5)
 scene.add(ambientLight)
 
 // Responsive

@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { scene, camera } from '../core/renderer.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 // Linterna
 const flashlight = new THREE.SpotLight(0xfff5cc, 50, 30, Math.PI * 0.3, 0.3, 1)
@@ -7,14 +8,25 @@ flashlight.castShadow = true
 scene.add(flashlight)
 scene.add(flashlight.target)
 
+// Posición de Lucas
+const lucasPos = new THREE.Vector3(0, 0.5, 0)
+
 // Modelo de Lucas
-const lucasBody = new THREE.Mesh(
-  new THREE.CapsuleGeometry(0.3, 1.2, 4, 8),
-  new THREE.MeshLambertMaterial({ color: 0x8B6914 })
-)
-lucasBody.castShadow = true
-lucasBody.position.set(0, 0.9, 0)
-scene.add(lucasBody)
+let lucasModel = null
+const loader = new GLTFLoader()
+loader.load('/lucas.glb', (gltf) => {
+  lucasModel = gltf.scene
+  lucasModel.scale.set(0.8, 0.8, 0.8)
+  lucasModel.castShadow = true
+  scene.add(lucasModel)
+  lucasModel.traverse((child) => {
+    if (child.isMesh) {
+      child.castShadow = true
+      child.visible = true
+      child.material = new THREE.MeshLambertMaterial({ color: 0xccaa88 })
+    }
+  })
+})
 
 // Teclado
 const keys = {}
@@ -46,41 +58,32 @@ const direction = new THREE.Vector3()
 const right = new THREE.Vector3()
 
 export function updatePlayer() {
-  // Dirección relativa a la cámara
   camera.getWorldDirection(direction)
   direction.y = 0
   direction.normalize()
   right.crossVectors(direction, new THREE.Vector3(0, 1, 0)).normalize()
 
-  // Mover a Lucas
-  if (keys['KeyW']) lucasBody.position.addScaledVector(direction, speed)
-  if (keys['KeyS']) lucasBody.position.addScaledVector(direction, -speed)
-  if (keys['KeyA']) lucasBody.position.addScaledVector(right, -speed)
-  if (keys['KeyD']) lucasBody.position.addScaledVector(right, speed)
+  if (keys['KeyW']) lucasPos.addScaledVector(direction, speed)
+  if (keys['KeyS']) lucasPos.addScaledVector(direction, -speed)
+  if (keys['KeyA']) lucasPos.addScaledVector(right, -speed)
+  if (keys['KeyD']) lucasPos.addScaledVector(right, speed)
 
-  lucasBody.rotation.y = euler.y + Math.PI
-
-  // Cámara según modo
-  if (thirdPerson) {
-    camera.position.set(
-      lucasBody.position.x - direction.x * 3,
-      lucasBody.position.y + 1.5,
-      lucasBody.position.z - direction.z * 3
-    )
-    camera.lookAt(
-      lucasBody.position.x,
-      lucasBody.position.y + 0.5,
-      lucasBody.position.z
-    )
-  } else {
-    camera.position.set(
-      lucasBody.position.x,
-      lucasBody.position.y + 0.9,
-      lucasBody.position.z
-    )
+  if (lucasModel) {
+    lucasModel.position.copy(lucasPos)
+    lucasModel.rotation.y = euler.y + Math.PI
   }
 
-  // Linterna
+  if (thirdPerson) {
+    camera.position.set(
+      lucasPos.x - direction.x * 2,
+      lucasPos.y + 1,
+      lucasPos.z - direction.z * 2
+    )
+    camera.lookAt(lucasPos.x, lucasPos.y + 0.5, lucasPos.z)
+  } else {
+    camera.position.set(lucasPos.x, lucasPos.y + 0.9, lucasPos.z)
+  }
+
   flashlight.position.copy(camera.position)
   const dir = new THREE.Vector3()
   camera.getWorldDirection(dir)
