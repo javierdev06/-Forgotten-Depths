@@ -12,6 +12,23 @@ const keys = {}
 window.addEventListener('keydown', (e) => keys[e.code] = true)
 window.addEventListener('keyup', (e) => keys[e.code] = false)
 
+// Mouse look
+const euler = new THREE.Euler(0, 0, 0, 'YXZ')
+
+document.addEventListener('click', () => {
+  document.body.requestPointerLock()
+})
+
+document.addEventListener('mousemove', (e) => {
+  if (document.pointerLockElement !== document.body) return
+
+  euler.y -= e.movementX * 0.002
+  euler.x -= e.movementY * 0.002
+  euler.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, euler.x))
+
+  camera.quaternion.setFromEuler(euler)
+})
+
 const speed = 0.15
 
 export function updatePlayer() {
@@ -22,10 +39,8 @@ export function updatePlayer() {
 
   // Linterna sigue la cámara
   flashlight.position.copy(camera.position)
-  flashlight.target.position.set(
-    camera.position.x,
-    camera.position.y - 1,
-    camera.position.z - 5
-  )
+    const direction = new THREE.Vector3()
+    camera.getWorldDirection(direction)
+    flashlight.target.position.copy(camera.position).addScaledVector(direction, 10)
   flashlight.target.updateMatrixWorld()
 }
