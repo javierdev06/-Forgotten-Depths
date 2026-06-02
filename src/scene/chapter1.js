@@ -78,4 +78,56 @@ segments.forEach(seg => {
     rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0)
     scene.add(rock)
   }
+
+  // DERRUMBE - Entrada bloqueada detrás de Lucas
+    function createRockfall() {
+    for (let i = 0; i < 20; i++) {
+        const size = Math.random() * 1.5 + 0.5
+        const geo = new THREE.DodecahedronGeometry(size)
+        const rock = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+        map: colorMap,
+        normalMap: normalMap,
+        roughness: 1,
+        metalness: 0
+        }))
+        rock.position.set(
+        (Math.random() - 0.5) * 8,
+        Math.random() * 3,
+        8 + Math.random() * 3
+        )
+        rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
+        rock.castShadow = true
+        scene.add(rock)
+    }
+    }
+
+createRockfall()
+
+    // CAMPAMENTO ABANDONADO - Zona 1
+    function createTent(x, z) {
+    // Base de la tienda
+    const geo = new THREE.ConeGeometry(1.5, 2, 4)
+    const mat = new THREE.MeshLambertMaterial({ color: 0x4a6741 })
+    const tent = new THREE.Mesh(geo, mat)
+    tent.position.set(x, 1, z)
+    tent.rotation.y = Math.PI / 4
+    tent.castShadow = true
+    scene.add(tent)
+    }
+
+    function createBackpack(x, z) {
+    const geo = new THREE.BoxGeometry(0.4, 0.6, 0.3)
+    const mat = new THREE.MeshLambertMaterial({ color: 0x8B4513 })
+    const pack = new THREE.Mesh(geo, mat)
+    pack.position.set(x, 0.3, z)
+    pack.rotation.y = Math.random() * Math.PI
+    pack.castShadow = true
+    scene.add(pack)
+    }
+
+    createTent(-2, -5)
+    createTent(2, -8)
+    createBackpack(-1, -6)
+    createBackpack(3, -4)
+    createBackpack(0, -10)
 })
