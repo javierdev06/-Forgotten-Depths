@@ -1,6 +1,6 @@
 import { scene, camera, renderer } from './core/renderer.js'
 import { updatePlayer } from './player/player.js'
-import './scene/cave.js'
+import './scene/chapter1.js'
 
 // Game loop
 function animate() {

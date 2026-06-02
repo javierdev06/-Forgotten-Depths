@@ -10,8 +10,8 @@ export const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 )
-camera.position.set(0, 2, 0)
-camera.lookAt(0, 2, -10)
+camera.position.set(0, 2, 5)
+camera.lookAt(0, 2, -5)
 
 const canvas = document.getElementById('game-canvas')
 export const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
