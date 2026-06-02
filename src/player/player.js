@@ -9,7 +9,7 @@ scene.add(flashlight)
 scene.add(flashlight.target)
 
 // Posición de Lucas
-const lucasPos = new THREE.Vector3(0, 0.5, 5)
+export const lucasPos = new THREE.Vector3(0, 0.5, 0)
 
 let lucasModel = null
 let mixer = null

@@ -10,6 +10,36 @@
   </style>
 </head>
 <body>
+  <div id="interact-prompt" style="
+    display: none;
+    position: fixed;
+    bottom: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-family: sans-serif;
+    font-size: 18px;
+    background: rgba(0,0,0,0.5);
+    padding: 8px 16px;
+    border-radius: 4px;
+  ">Presiona <kbd>E</kbd> para leer</div>
+
+  <div id="wall-message" style="
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.85);
+    color: #ff4400;
+    font-family: serif;
+    font-size: 24px;
+    padding: 30px 50px;
+    border: 1px solid #ff4400;
+    text-align: center;
+    border-radius: 4px;
+  ">"No bajen más.<br/>Ya despertó."<br/><br/><small style="color:#aaa;font-size:14px">Presiona E para cerrar</small></div>
+
   <canvas id="game-canvas"></canvas>
   <script type="module" src="/src/main.js"></script>
 </body>

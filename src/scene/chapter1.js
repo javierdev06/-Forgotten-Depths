@@ -31,7 +31,6 @@ const floorMat = new THREE.MeshStandardMaterial({
   metalness: 0
 })
 
-// Segmentos de cueva: cada uno va hacia adelante en Z
 const segments = [
   { z: 0,    radius: 5,  length: 25 },
   { z: -20,  radius: 4,  length: 25 },
@@ -45,14 +44,12 @@ const segments = [
 ]
 
 segments.forEach(seg => {
-  // Tubo principal
   const geo = new THREE.CylinderGeometry(seg.radius, seg.radius, seg.length, 16, 1, true)
   const mesh = new THREE.Mesh(geo, rockMat)
   mesh.rotation.x = Math.PI / 2
   mesh.position.set(0, seg.radius * 0.6, seg.z)
   scene.add(mesh)
 
-  // Suelo plano
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(seg.radius * 1.8, seg.length),
     floorMat
@@ -61,7 +58,6 @@ segments.forEach(seg => {
   floor.position.set(0, 0.01, seg.z)
   scene.add(floor)
 
-  // Rocas decorativas
   for (let i = 0; i < 6; i++) {
     const rGeo = new THREE.DodecahedronGeometry(Math.random() * 0.6 + 0.3)
     const rock = new THREE.Mesh(rGeo, new THREE.MeshStandardMaterial({
@@ -78,56 +74,67 @@ segments.forEach(seg => {
     rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0)
     scene.add(rock)
   }
+})
 
-  // DERRUMBE - Entrada bloqueada detrás de Lucas
-    function createRockfall() {
-    for (let i = 0; i < 20; i++) {
-        const size = Math.random() * 1.5 + 0.5
-        const geo = new THREE.DodecahedronGeometry(size)
-        const rock = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-        map: colorMap,
-        normalMap: normalMap,
-        roughness: 1,
-        metalness: 0
-        }))
-        rock.position.set(
-        (Math.random() - 0.5) * 8,
-        Math.random() * 3,
-        8 + Math.random() * 3
-        )
-        rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
-        rock.castShadow = true
-        scene.add(rock)
-    }
-    }
+// DERRUMBE
+function createRockfall() {
+  for (let i = 0; i < 20; i++) {
+    const size = Math.random() * 1.5 + 0.5
+    const geo = new THREE.DodecahedronGeometry(size)
+    const rock = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+      map: colorMap,
+      normalMap: normalMap,
+      roughness: 1,
+      metalness: 0
+    }))
+    rock.position.set(
+      (Math.random() - 0.5) * 8,
+      Math.random() * 3,
+      8 + Math.random() * 3
+    )
+    rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
+    rock.castShadow = true
+    scene.add(rock)
+  }
+}
 
 createRockfall()
 
-    // CAMPAMENTO ABANDONADO - Zona 1
-    function createTent(x, z) {
-    // Base de la tienda
-    const geo = new THREE.ConeGeometry(1.5, 2, 4)
-    const mat = new THREE.MeshLambertMaterial({ color: 0x4a6741 })
-    const tent = new THREE.Mesh(geo, mat)
-    tent.position.set(x, 1, z)
-    tent.rotation.y = Math.PI / 4
-    tent.castShadow = true
-    scene.add(tent)
-    }
+// CAMPAMENTO ABANDONADO
+function createTent(x, z) {
+  const geo = new THREE.ConeGeometry(1.5, 2, 4)
+  const mat = new THREE.MeshLambertMaterial({ color: 0x4a6741 })
+  const tent = new THREE.Mesh(geo, mat)
+  tent.position.set(x, 1, z)
+  tent.rotation.y = Math.PI / 4
+  tent.castShadow = true
+  scene.add(tent)
+}
 
-    function createBackpack(x, z) {
-    const geo = new THREE.BoxGeometry(0.4, 0.6, 0.3)
-    const mat = new THREE.MeshLambertMaterial({ color: 0x8B4513 })
-    const pack = new THREE.Mesh(geo, mat)
-    pack.position.set(x, 0.3, z)
-    pack.rotation.y = Math.random() * Math.PI
-    pack.castShadow = true
-    scene.add(pack)
-    }
+function createBackpack(x, z) {
+  const geo = new THREE.BoxGeometry(0.4, 0.6, 0.3)
+  const mat = new THREE.MeshLambertMaterial({ color: 0x8B4513 })
+  const pack = new THREE.Mesh(geo, mat)
+  pack.position.set(x, 0.3, z)
+  pack.rotation.y = Math.random() * Math.PI
+  pack.castShadow = true
+  scene.add(pack)
+}
 
-    createTent(-2, -5)
-    createTent(2, -8)
-    createBackpack(-1, -6)
-    createBackpack(3, -4)
-    createBackpack(0, -10)
-})
+createTent(-2, -5)
+createTent(2, -8)
+createBackpack(-1, -6)
+createBackpack(3, -4)
+createBackpack(0, -10)
+
+// NOTA EN EL SUELO
+const noteGeo = new THREE.BoxGeometry(0.4, 0.02, 0.5)
+const noteMat = new THREE.MeshLambertMaterial({ color: 0xf5e6c8 })
+export const note = new THREE.Mesh(noteGeo, noteMat)
+note.position.set(0, 0.1, -155)
+note.rotation.y = Math.PI * 0.1
+scene.add(note)
+
+const noteLight = new THREE.PointLight(0xffaa00, 1, 3)
+noteLight.position.set(0, 1, -155)
+scene.add(noteLight)
