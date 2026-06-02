@@ -11,6 +11,12 @@ scene.add(flashlight.target)
 // Posición de Lucas
 export const lucasPos = new THREE.Vector3(0, 0.5, 0)
 
+// Cinemática de entrada
+let introPlaying = true
+let introTimer = 0
+const introStartY = 15
+lucasPos.set(0, introStartY, 5)
+
 let lucasModel = null
 let mixer = null
 let idleAction = null
@@ -85,6 +91,23 @@ const jumpForce = 0.2
 const groundLevel = 0.5
 
 export function updatePlayer() {
+    // Cinemática de caída inicial
+    if (introPlaying) {
+    introTimer += 0.016
+    lucasPos.y -= 0.15
+    if (lucasPos.y <= 0.5) {
+        lucasPos.y = 0.5
+        introPlaying = false
+    }
+    if (lucasModel) {
+        lucasModel.position.copy(lucasPos)
+    }
+    camera.position.set(lucasPos.x - 3, lucasPos.y + 2, lucasPos.z + 3)
+    camera.lookAt(lucasPos.x, lucasPos.y, lucasPos.z)
+    return
+    }
+
+
   camera.getWorldDirection(direction)
   direction.y = 0
   direction.normalize()
