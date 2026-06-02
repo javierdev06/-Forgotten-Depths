@@ -78,6 +78,11 @@ const speed = 0.15
 const direction = new THREE.Vector3()
 const right = new THREE.Vector3()
 let isWalking = false
+let isJumping = false
+let jumpVelocity = 0
+const gravity = -0.01
+const jumpForce = 0.2
+const groundLevel = 0.5
 
 export function updatePlayer() {
   camera.getWorldDirection(direction)
@@ -103,6 +108,21 @@ export function updatePlayer() {
       idleAction.reset().fadeIn(0.2).play()
     }
   }
+  // Salto
+    if (keys['Space'] && !isJumping) {
+    isJumping = true
+    jumpVelocity = jumpForce
+    }
+
+    if (isJumping) {
+    lucasPos.y += jumpVelocity
+    jumpVelocity += gravity
+    if (lucasPos.y <= groundLevel) {
+        lucasPos.y = groundLevel
+        isJumping = false
+        jumpVelocity = 0
+    }
+    }
 
   if (lucasModel) {
     lucasModel.position.copy(lucasPos)
