@@ -31,62 +31,51 @@ const floorMat = new THREE.MeshStandardMaterial({
   metalness: 0
 })
 
-// Crea un segmento de tubo como cueva sólida
-function createTunnel(x, z, width, length, height) {
-  // Tubo interior (BackSide para ver desde adentro)
-  const geo = new THREE.CylinderGeometry(width / 2, width / 2, length, 16, 1, true)
-    const mesh = new THREE.Mesh(geo, rockMat)
-    mesh.rotation.x = Math.PI / 2
-    mesh.position.set(x, height / 2, z) 
+// Segmentos de cueva: cada uno va hacia adelante en Z
+const segments = [
+  { z: 0,    radius: 5,  length: 25 },
+  { z: -20,  radius: 4,  length: 25 },
+  { z: -40,  radius: 4.5,length: 25 },
+  { z: -60,  radius: 5,  length: 25 },
+  { z: -80,  radius: 6,  length: 25 },
+  { z: -100, radius: 5,  length: 25 },
+  { z: -120, radius: 5,  length: 25 },
+  { z: -140, radius: 4,  length: 25 },
+  { z: -160, radius: 6,  length: 25 },
+]
+
+segments.forEach(seg => {
+  // Tubo principal
+  const geo = new THREE.CylinderGeometry(seg.radius, seg.radius, seg.length, 16, 1, true)
+  const mesh = new THREE.Mesh(geo, rockMat)
+  mesh.rotation.x = Math.PI / 2
+  mesh.position.set(0, seg.radius * 0.6, seg.z)
   scene.add(mesh)
 
-  // Suelo
+  // Suelo plano
   const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(width, length),
+    new THREE.PlaneGeometry(seg.radius * 1.8, seg.length),
     floorMat
   )
   floor.rotation.x = -Math.PI / 2
-  floor.position.set(x, 0.01, z)
-  floor.receiveShadow = true
+  floor.position.set(0, 0.01, seg.z)
   scene.add(floor)
 
-  // Rocas decorativas en las paredes
-  for (let i = 0; i < 8; i++) {
-    const geo = new THREE.DodecahedronGeometry(Math.random() * 0.8 + 0.4)
-    const rock = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+  // Rocas decorativas
+  for (let i = 0; i < 6; i++) {
+    const rGeo = new THREE.DodecahedronGeometry(Math.random() * 0.6 + 0.3)
+    const rock = new THREE.Mesh(rGeo, new THREE.MeshStandardMaterial({
       map: colorMap,
       normalMap: normalMap,
       roughness: 1,
       metalness: 0
     }))
     rock.position.set(
-      x + (Math.random() - 0.5) * width * 0.7,
-      Math.random() * 1.5,
-      z + (Math.random() - 0.5) * length * 0.8
+      (Math.random() - 0.5) * seg.radius * 1.5,
+      Math.random() * 0.5,
+      seg.z - Math.random() * seg.length
     )
     rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0)
-    rock.castShadow = true
     scene.add(rock)
   }
-}
-
-// ZONA 1 - Campamento abandonado
-createTunnel(0, 0, 10, 20, 6)
-
-// ZONA 2 - Túneles iniciales
-createTunnel(-5, -25, 8, 20, 5)
-
-// ZONA 3 - Galería colapsada
-createTunnel(-12, -50, 14, 25, 7)
-
-// ZONA 4 - Cámara inundada
-createTunnel(-20, -75, 12, 20, 6)
-
-// ZONA 5 - Campamento principal
-createTunnel(-25, -100, 14, 20, 7)
-
-// Conectores
-createTunnel(-2.5, -12, 9, 10, 5.5)
-createTunnel(-8.5, -37, 11, 10, 6)
-createTunnel(-16, -62, 13, 10, 6.5)
-createTunnel(-22.5, -87, 13, 10, 6.5)
+})
