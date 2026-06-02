@@ -13,6 +13,7 @@ const lucasPos = new THREE.Vector3(0, 0.5, 0)
 
 // Modelo de Lucas
 let lucasModel = null
+let mixer = null
 const loader = new GLTFLoader()
 loader.load('/lucas.glb', (gltf) => {
   lucasModel = gltf.scene
@@ -23,8 +24,12 @@ loader.load('/lucas.glb', (gltf) => {
     if (child.isMesh) {
       child.castShadow = true
       child.visible = true
-      child.material = new THREE.MeshLambertMaterial({ color: 0xccaa88 })
     }
+    if (gltf.animations.length > 0) {
+    mixer = new THREE.AnimationMixer(lucasModel)
+    const idleAction = mixer.clipAction(gltf.animations[0])
+    idleAction.play()
+}
   })
 })
 
@@ -67,6 +72,7 @@ export function updatePlayer() {
   if (keys['KeyS']) lucasPos.addScaledVector(direction, -speed)
   if (keys['KeyA']) lucasPos.addScaledVector(right, -speed)
   if (keys['KeyD']) lucasPos.addScaledVector(right, speed)
+    
 
   if (lucasModel) {
     lucasModel.position.copy(lucasPos)
@@ -89,4 +95,5 @@ export function updatePlayer() {
   camera.getWorldDirection(dir)
   flashlight.target.position.copy(camera.position).addScaledVector(dir, 10)
   flashlight.target.updateMatrixWorld()
+  if (mixer) mixer.update(0.016)
 }
