@@ -1,7 +1,6 @@
 import { scene, camera, renderer } from './core/renderer.js'
-import './scene/chapter1.js'
+import { note, updateRockfall } from './scene/chapter1.js'
 import { updatePlayer, lucasPos } from './player/player.js'
-import { note } from './scene/chapter1.js'
 
 const msgDiv = document.getElementById('wall-message')
 const interactPrompt = document.getElementById('interact-prompt')
@@ -25,6 +24,7 @@ window.addEventListener('keydown', (e) => {
 function animate() {
   requestAnimationFrame(animate)
   updatePlayer()
+  updateRockfall(performance.now())
 
   // Rotar nota levemente para que llame la atención
   note.rotation.y += 0.01

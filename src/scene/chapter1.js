@@ -105,9 +105,11 @@ segments.forEach(seg => {
   }
 })
 
-// DERRUMBE
+// DERRUMBE ANIMADO
+const fallingRocks = []
+
 function createRockfall() {
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 60; i++) {
     const size = Math.random() * 1.5 + 0.5
     const geo = new THREE.DodecahedronGeometry(size)
     const rock = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
@@ -116,15 +118,38 @@ function createRockfall() {
       roughness: 1,
       metalness: 0
     }))
-    rock.position.set(
-      (Math.random() - 0.5) * 8,
-      Math.random() * 3,
-      8 + Math.random() * 3
-    )
+
+    const x = (Math.random() - 0.5) * 10
+    const finalY = Math.random() * 5 + 1
+    const z = 6 + Math.random() * 5
+
+    rock.position.set(x, 20, z)
     rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
     rock.castShadow = true
     scene.add(rock)
+
+    fallingRocks.push({
+      mesh: rock,
+      finalY,
+      speed: Math.random() * 0.3 + 0.1,
+      falling: true,
+      delay: Math.random() * 2000
+    })
   }
+}
+
+export function updateRockfall(time) {
+  fallingRocks.forEach(rock => {
+    if (time < rock.delay) return
+    if (!rock.falling) return
+    rock.mesh.position.y -= rock.speed
+    rock.mesh.rotation.x += 0.05
+    rock.mesh.rotation.z += 0.03
+    if (rock.mesh.position.y <= rock.finalY) {
+      rock.mesh.position.y = rock.finalY
+      rock.falling = false
+    }
+  })
 }
 
 createRockfall()
