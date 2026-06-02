@@ -11,25 +11,41 @@ scene.add(flashlight.target)
 // Posición de Lucas
 const lucasPos = new THREE.Vector3(0, 0.5, 0)
 
-// Modelo de Lucas
 let lucasModel = null
 let mixer = null
+let idleAction = null
+let walkAction = null
+
 const loader = new GLTFLoader()
 loader.load('/lucas.glb', (gltf) => {
   lucasModel = gltf.scene
   lucasModel.scale.set(0.8, 0.8, 0.8)
   lucasModel.castShadow = true
   scene.add(lucasModel)
+
   lucasModel.traverse((child) => {
     if (child.isMesh) {
       child.castShadow = true
       child.visible = true
     }
-    if (gltf.animations.length > 0) {
-    mixer = new THREE.AnimationMixer(lucasModel)
-    const idleAction = mixer.clipAction(gltf.animations[0])
+  })
+
+  mixer = new THREE.AnimationMixer(lucasModel)
+
+  if (gltf.animations.length > 0) {
+    idleAction = mixer.clipAction(gltf.animations[0])
     idleAction.play()
-}
+  }
+
+  // Cargar walking después de que el mixer existe
+  const walkLoader = new GLTFLoader()
+  walkLoader.load('/walking.glb', (walkGltf) => {
+  console.log('Walking animations:', walkGltf.animations.length)
+  if (walkGltf.animations.length > 0) {
+    walkAction = mixer.clipAction(walkGltf.animations[0])
+    walkAction.loop = THREE.LoopRepeat
+  }
+
   })
 })
 
@@ -61,6 +77,7 @@ window.addEventListener('keydown', (e) => {
 const speed = 0.15
 const direction = new THREE.Vector3()
 const right = new THREE.Vector3()
+let isWalking = false
 
 export function updatePlayer() {
   camera.getWorldDirection(direction)
@@ -68,11 +85,24 @@ export function updatePlayer() {
   direction.normalize()
   right.crossVectors(direction, new THREE.Vector3(0, 1, 0)).normalize()
 
+  const isMoving = keys['KeyW'] || keys['KeyS'] || keys['KeyA'] || keys['KeyD']
+
   if (keys['KeyW']) lucasPos.addScaledVector(direction, speed)
   if (keys['KeyS']) lucasPos.addScaledVector(direction, -speed)
   if (keys['KeyA']) lucasPos.addScaledVector(right, -speed)
   if (keys['KeyD']) lucasPos.addScaledVector(right, speed)
-    
+
+  if (idleAction && walkAction) {
+    if (isMoving && !isWalking) {
+      isWalking = true
+      idleAction.fadeOut(0.2)
+      walkAction.reset().fadeIn(0.2).play()
+    } else if (!isMoving && isWalking) {
+      isWalking = false
+      walkAction.fadeOut(0.2)
+      idleAction.reset().fadeIn(0.2).play()
+    }
+  }
 
   if (lucasModel) {
     lucasModel.position.copy(lucasPos)
@@ -95,5 +125,6 @@ export function updatePlayer() {
   camera.getWorldDirection(dir)
   flashlight.target.position.copy(camera.position).addScaledVector(dir, 10)
   flashlight.target.updateMatrixWorld()
+
   if (mixer) mixer.update(0.016)
 }
