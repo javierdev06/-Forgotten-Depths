@@ -112,6 +112,27 @@ for (let z = -2; z > -45; z -= 3) {
   if (Math.random() > 0.5) createStalagmite((Math.random() - 0.5) * 7, z, Math.random() * 1.5 + 0.5)
 }
 
+// Paredes irregulares
+function createWallRock(x, y, z, scaleX, scaleY, scaleZ) {
+  const geo = new THREE.DodecahedronGeometry(1)
+  const mesh = new THREE.Mesh(geo, rockMat)
+  mesh.position.set(x, y, z)
+  mesh.scale.set(scaleX, scaleY, scaleZ)
+  mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
+  mesh.castShadow = true
+  scene.add(mesh)
+}
+
+// Pared izquierda
+for (let z = 0; z > -45; z -= 4) {
+  createWallRock(-5, Math.random() * 3 + 0.5, z, 0.8, Math.random() * 1.5 + 0.5, 0.5)
+}
+
+// Pared derecha
+for (let z = 0; z > -45; z -= 4) {
+  createWallRock(5, Math.random() * 3 + 0.5, z, 0.8, Math.random() * 1.5 + 0.5, 0.5)
+}
+
 // Cristales
 function createCrystal(x, y, z, color) {
   const geo = new THREE.ConeGeometry(0.1, Math.random() * 0.8 + 0.4, 5)

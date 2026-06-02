@@ -125,9 +125,10 @@ export function updatePlayer() {
     }
 
   if (lucasModel) {
-    lucasModel.position.copy(lucasPos)
-    lucasModel.rotation.y = euler.y + Math.PI
-  }
+  lucasModel.position.copy(lucasPos)
+  lucasModel.rotation.y = euler.y + Math.PI
+  lucasModel.visible = thirdPerson
+}
 
   if (thirdPerson) {
     camera.position.set(
