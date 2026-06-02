@@ -1,8 +1,29 @@
 import * as THREE from 'three'
 import { scene } from '../core/renderer.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 export const introGroup = new THREE.Group()
 scene.add(introGroup)
+
+const gltfLoader = new GLTFLoader()
+export let professorMixer = null
+
+gltfLoader.load('/professor.glb', (gltf) => {
+  console.log('profesor cargado')
+  const professor = gltf.scene
+  professor.scale.set(1, 1, 1)
+  professor.position.set(2, 0, -0.5)
+  professor.rotation.y = -1
+  introGroup.add(professor)
+
+  if (gltf.animations.length > 0) {
+    professorMixer = new THREE.AnimationMixer(professor)
+    const idle = professorMixer.clipAction(gltf.animations[0])
+    idle.play()
+  }
+}, undefined, (error) => {
+  console.error('error cargando profesor:', error)
+})
 
 // Cielo atardecer
 scene.background = new THREE.Color(0xff7733)
