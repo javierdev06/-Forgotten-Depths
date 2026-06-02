@@ -34,9 +34,10 @@ const floorMat = new THREE.MeshStandardMaterial({
 // Crea un segmento de tubo como cueva sólida
 function createTunnel(x, z, width, length, height) {
   // Tubo interior (BackSide para ver desde adentro)
-  const geo = new THREE.BoxGeometry(width, height, length)
-  const mesh = new THREE.Mesh(geo, rockMat)
-  mesh.position.set(x, height / 2, z)
+  const geo = new THREE.CylinderGeometry(width / 2, width / 2, length, 16, 1, true)
+    const mesh = new THREE.Mesh(geo, rockMat)
+    mesh.rotation.x = Math.PI / 2
+    mesh.position.set(x, height / 2, z) 
   scene.add(mesh)
 
   // Suelo
