@@ -1,40 +1,41 @@
 import { scene, camera, renderer } from './core/renderer.js'
-import { note, updateRockfall } from './scene/chapter1.js'
 import { updatePlayer, lucasPos } from './player/player.js'
+import { note, updateRockfall } from './scene/chapter1.js'
+
+// Estado del juego
+let gameState = 'intro' // 'intro' | 'game'
+
+// Cargar escena según estado
+async function loadIntro() {
+  await import('./scene/intro.js')
+}
+
+loadIntro()
 
 const msgDiv = document.getElementById('wall-message')
-const interactPrompt = document.getElementById('interact-prompt')
-
-let noteOpen = false
 
 window.addEventListener('keydown', (e) => {
-  if (e.code === 'KeyE') {
+  if (e.code === 'KeyE' && gameState === 'game') {
     const dist = lucasPos.distanceTo(note.position)
-    if (dist < 3 && !noteOpen) {
-      noteOpen = true
-      msgDiv.style.display = 'block'
-      document.exitPointerLock()
-    } else if (noteOpen) {
-      noteOpen = false
-      msgDiv.style.display = 'none'
+    if (dist < 3) {
+      msgDiv.style.display = msgDiv.style.display === 'none' ? 'block' : 'none'
+      if (msgDiv.style.display === 'block') document.exitPointerLock()
     }
   }
 })
 
 function animate() {
   requestAnimationFrame(animate)
-  updatePlayer()
-  updateRockfall(performance.now())
 
-  // Rotar nota levemente para que llame la atención
-  note.rotation.y += 0.01
+  if (gameState === 'game') {
+    updatePlayer()
+    updateRockfall(performance.now())
 
-  // Mostrar prompt si está cerca
-  const dist = lucasPos.distanceTo(note.position)
-  if (dist < 3 && !noteOpen) {
-    document.getElementById('interact-prompt').style.display = 'block'
-  } else {
-    document.getElementById('interact-prompt').style.display = 'none'
+    note.rotation.y += 0.01
+
+    const dist = lucasPos.distanceTo(note.position)
+    document.getElementById('interact-prompt').style.display = 
+      dist < 3 && msgDiv.style.display === 'none' ? 'block' : 'none'
   }
 
   renderer.render(scene, camera)
