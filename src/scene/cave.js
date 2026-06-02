@@ -1,10 +1,49 @@
 import * as THREE from 'three'
 import { scene } from '../core/renderer.js'
 
+// Textura de roca generada proceduralmente
+const canvas = document.createElement('canvas')
+canvas.width = 256
+canvas.height = 256
+const ctx = canvas.getContext('2d')
+
+ctx.fillStyle = '#3a3028'
+ctx.fillRect(0, 0, 256, 256)
+
+for (let i = 0; i < 2000; i++) {
+  const x = Math.random() * 256
+  const y = Math.random() * 256
+  const r = Math.random() * 3
+  const brightness = Math.floor(Math.random() * 40 + 30)
+  ctx.fillStyle = `rgb(${brightness}, ${brightness - 5}, ${brightness - 10})`
+  ctx.beginPath()
+  ctx.arc(x, y, r, 0, Math.PI * 2)
+  ctx.fill()
+}
+
+const stoneTexture = new THREE.CanvasTexture(canvas)
+stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping
+stoneTexture.repeat.set(4, 4)
+
 // Materiales
-const floorMat = new THREE.MeshLambertMaterial({ color: 0x2a1f0f })
-const wallMat = new THREE.MeshLambertMaterial({ color: 0x1a1208 })
-const rockMat = new THREE.MeshLambertMaterial({ color: 0x3a3028 })
+const floorMat = new THREE.MeshStandardMaterial({ 
+  map: stoneTexture,
+  roughness: 1,
+  metalness: 0
+})
+
+const wallMat = new THREE.MeshStandardMaterial({ 
+  map: stoneTexture,
+  roughness: 1,
+  metalness: 0,
+  color: 0x888888
+})
+
+const rockMat = new THREE.MeshStandardMaterial({ 
+  color: 0x3a3028,
+  roughness: 1,
+  metalness: 0
+})
 
 // Suelo
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 50), floorMat)
@@ -48,3 +87,53 @@ createRock(-4, 0.3, -8, 0.4)
 createRock(2, 0.6, -18, 0.7)
 createRock(-3, 0.3, -25, 0.5)
 createRock(3, 0.4, -12, 0.3)
+
+// Estalactitas (techo)
+function createStalactite(x, z, height) {
+  const geo = new THREE.ConeGeometry(0.2, height, 6)
+  const mesh = new THREE.Mesh(geo, rockMat)
+  mesh.position.set(x, 6 - height / 2, z)
+  mesh.rotation.x = Math.PI
+  mesh.castShadow = true
+  scene.add(mesh)
+}
+
+// Estalagmitas (suelo)
+function createStalagmite(x, z, height) {
+  const geo = new THREE.ConeGeometry(0.15, height, 6)
+  const mesh = new THREE.Mesh(geo, rockMat)
+  mesh.position.set(x, height / 2, z)
+  mesh.castShadow = true
+  scene.add(mesh)
+}
+
+for (let z = -2; z > -45; z -= 3) {
+  createStalactite((Math.random() - 0.5) * 7, z, Math.random() * 2 + 1)
+  if (Math.random() > 0.5) createStalagmite((Math.random() - 0.5) * 7, z, Math.random() * 1.5 + 0.5)
+}
+
+// Cristales
+function createCrystal(x, y, z, color) {
+  const geo = new THREE.ConeGeometry(0.1, Math.random() * 0.8 + 0.4, 5)
+  const mat = new THREE.MeshStandardMaterial({
+    color: color,
+    emissive: color,
+    emissiveIntensity: 0.5,
+    roughness: 0.1,
+    metalness: 0.8
+  })
+  const crystal = new THREE.Mesh(geo, mat)
+  crystal.position.set(x, y, z)
+  crystal.rotation.set(Math.random() * 0.5, Math.random() * Math.PI, Math.random() * 0.5)
+  scene.add(crystal)
+
+  const light = new THREE.PointLight(color, 0.8, 4)
+  light.position.set(x, y, z)
+  scene.add(light)
+}
+
+createCrystal(-4, 0.5, -12, 0x4444ff)
+createCrystal(3, 0.5, -20, 0x44ffaa)
+createCrystal(-3, 0.5, -30, 0x8844ff)
+createCrystal(4, 1, -18, 0x44ffaa)
+createCrystal(-2, 0.5, -25, 0x4444ff)
