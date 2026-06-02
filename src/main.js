@@ -1,20 +1,49 @@
+import * as THREE from 'three'
 import { scene, camera, renderer } from './core/renderer.js'
 import { updatePlayer, lucasPos } from './player/player.js'
-import { note, updateRockfall } from './scene/chapter1.js'
+import { note, updateRockfall, chapter1Group } from './scene/chapter1.js'
+import { introGroup, clearIntro } from './scene/intro.js'
 
-// Estado del juego
-let gameState = 'intro' // 'intro' | 'game'
-
-// Cargar escena según estado
-async function loadIntro() {
-  await import('./scene/intro.js')
-}
-
-loadIntro()
-
+let gameState = 'intro'
 const msgDiv = document.getElementById('wall-message')
 
+const fadeDiv = document.createElement('div')
+fadeDiv.style.cssText = `
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: black;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  transition: opacity 1.5s;
+`
+document.body.appendChild(fadeDiv)
+
+
+
+camera.position.set(0, 5, 5)
+camera.lookAt(0, 2, -10)
+
+function startGame() {
+  fadeDiv.style.opacity = '1'
+  setTimeout(() => {
+    console.log('limpiando intro...')
+    clearIntro()
+    console.log('introGroup visible:', introGroup.visible)
+    chapter1Group.visible = true
+    scene.background = new THREE.Color(0x000000)
+    scene.fog = new THREE.FogExp2(0x000000, 0.08)
+    lucasPos.set(0, 0.5, 5)
+    camera.position.set(0, 2, 5)
+    camera.lookAt(0, 2, -5)
+    gameState = 'game'
+    setTimeout(() => { fadeDiv.style.opacity = '0' }, 100)
+  }, 1500)
+}
+
 window.addEventListener('keydown', (e) => {
+  if (e.code === 'Enter' && gameState === 'intro') startGame()
+
   if (e.code === 'KeyE' && gameState === 'game') {
     const dist = lucasPos.distanceTo(note.position)
     if (dist < 3) {
@@ -30,11 +59,9 @@ function animate() {
   if (gameState === 'game') {
     updatePlayer()
     updateRockfall(performance.now())
-
     note.rotation.y += 0.01
-
     const dist = lucasPos.distanceTo(note.position)
-    document.getElementById('interact-prompt').style.display = 
+    document.getElementById('interact-prompt').style.display =
       dist < 3 && msgDiv.style.display === 'none' ? 'block' : 'none'
   }
 

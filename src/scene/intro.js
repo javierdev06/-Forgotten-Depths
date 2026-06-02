@@ -1,7 +1,8 @@
 import * as THREE from 'three'
-import { scene, camera, renderer } from '../core/renderer.js'
+import { scene } from '../core/renderer.js'
 
-const textureLoader = new THREE.TextureLoader()
+export const introGroup = new THREE.Group()
+scene.add(introGroup)
 
 // Cielo atardecer
 scene.background = new THREE.Color(0xff7733)
@@ -13,7 +14,7 @@ const groundMat = new THREE.MeshLambertMaterial({ color: 0x2d4a1e })
 const ground = new THREE.Mesh(groundGeo, groundMat)
 ground.rotation.x = -Math.PI / 2
 ground.receiveShadow = true
-scene.add(ground)
+introGroup.add(ground)
 
 // Montaña
 function createMountain(x, z, scale) {
@@ -22,7 +23,7 @@ function createMountain(x, z, scale) {
   const mountain = new THREE.Mesh(geo, mat)
   mountain.position.set(x, scale * 0.75, z)
   mountain.castShadow = true
-  scene.add(mountain)
+  introGroup.add(mountain)
 }
 
 createMountain(0, -30, 25)
@@ -36,14 +37,13 @@ function createCaveEntrance() {
   const arch = new THREE.Mesh(archGeo, archMat)
   arch.position.set(0, 4, -15)
   arch.rotation.z = Math.PI
-  scene.add(arch)
+  introGroup.add(arch)
 
-  // Oscuridad interior
   const darkGeo = new THREE.CircleGeometry(3.5, 16)
   const darkMat = new THREE.MeshBasicMaterial({ color: 0x000000 })
   const dark = new THREE.Mesh(darkGeo, darkMat)
   dark.position.set(0, 4, -14.9)
-  scene.add(dark)
+  introGroup.add(dark)
 }
 
 createCaveEntrance()
@@ -54,13 +54,13 @@ function createTree(x, z) {
   const trunkMat = new THREE.MeshLambertMaterial({ color: 0x4a2f0a })
   const trunk = new THREE.Mesh(trunkGeo, trunkMat)
   trunk.position.set(x, 1, z)
-  scene.add(trunk)
+  introGroup.add(trunk)
 
   const leavesGeo = new THREE.ConeGeometry(1.5, 3, 7)
   const leavesMat = new THREE.MeshLambertMaterial({ color: 0x1a4a1a })
   const leaves = new THREE.Mesh(leavesGeo, leavesMat)
   leaves.position.set(x, 3.5, z)
-  scene.add(leaves)
+  introGroup.add(leaves)
 }
 
 for (let i = 0; i < 30; i++) {
@@ -73,25 +73,24 @@ for (let i = 0; i < 30; i++) {
 const sunLight = new THREE.DirectionalLight(0xff7733, 1.5)
 sunLight.position.set(-10, 20, 10)
 sunLight.castShadow = true
-scene.add(sunLight)
+introGroup.add(sunLight)
 
 const ambientLight = new THREE.AmbientLight(0xff9944, 0.5)
-scene.add(ambientLight)
+introGroup.add(ambientLight)
 
-// Vehículo abandonado
+// Vehículos abandonados
 function createJeep(x, z) {
   const bodyGeo = new THREE.BoxGeometry(3, 1.2, 5)
   const bodyMat = new THREE.MeshLambertMaterial({ color: 0x4a5a3a })
   const body = new THREE.Mesh(bodyGeo, bodyMat)
   body.position.set(x, 0.8, z)
-  scene.add(body)
+  introGroup.add(body)
 
   const roofGeo = new THREE.BoxGeometry(2.5, 0.8, 2.5)
   const roof = new THREE.Mesh(roofGeo, bodyMat)
   roof.position.set(x, 1.8, z + 0.3)
-  scene.add(roof)
+  introGroup.add(roof)
 
-  // Ruedas
   for (let wx of [-1.6, 1.6]) {
     for (let wz of [-1.5, 1.5]) {
       const wheelGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 8)
@@ -99,7 +98,7 @@ function createJeep(x, z) {
       const wheel = new THREE.Mesh(wheelGeo, wheelMat)
       wheel.position.set(x + wx, 0.4, z + wz)
       wheel.rotation.z = Math.PI / 2
-      scene.add(wheel)
+      introGroup.add(wheel)
     }
   }
 }
@@ -107,4 +106,8 @@ function createJeep(x, z) {
 createJeep(-6, -8)
 createJeep(7, -10)
 
-export { camera }
+export function clearIntro() {
+  introGroup.visible = false
+  scene.background = new THREE.Color(0x000000)
+  scene.fog = new THREE.FogExp2(0x000000, 0.08)
+}
