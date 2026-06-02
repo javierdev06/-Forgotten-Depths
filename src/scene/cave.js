@@ -32,44 +32,58 @@ const floorMat = new THREE.MeshStandardMaterial({
   metalness: 0
 })
 
-const wallMat = new THREE.MeshStandardMaterial({ 
-  map: stoneTexture,
-  roughness: 1,
-  metalness: 0,
-  color: 0x888888
-})
-
 const rockMat = new THREE.MeshStandardMaterial({ 
-  color: 0x3a3028,
+  color: 0x6b4c2a,
   roughness: 1,
   metalness: 0
 })
 
 // Suelo
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 50), floorMat)
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 60), floorMat)
 floor.rotation.x = -Math.PI / 2
 floor.receiveShadow = true
 scene.add(floor)
 
-// Pared izquierda
-const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(50, 6), wallMat)
-wallLeft.position.set(-5, 3, 0)
-wallLeft.rotation.y = Math.PI / 2
-scene.add(wallLeft)
+// Techo irregular
+function createCeilingChunk(x, z, scale) {
+  const geo = new THREE.DodecahedronGeometry(scale)
+  const mesh = new THREE.Mesh(geo, rockMat)
+  mesh.position.set(x, 5.5 + Math.random() * 0.5, z)
+  mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
+  mesh.castShadow = true
+  scene.add(mesh)
+}
 
-// Pared derecha
-const wallRight = new THREE.Mesh(new THREE.PlaneGeometry(50, 6), wallMat)
-wallRight.position.set(5, 3, 0)
-wallRight.rotation.y = -Math.PI / 2
-scene.add(wallRight)
+for (let z = 2; z > -50; z -= 2) {
+  for (let x = -5; x <= 5; x += 2.5) {
+    createCeilingChunk(x + (Math.random() - 0.5), z, Math.random() * 1.2 + 0.8)
+  }
+}
 
-// Techo
-const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(10, 50), wallMat)
-ceiling.position.set(0, 6, 0)
-ceiling.rotation.x = Math.PI / 2
-scene.add(ceiling)
+// Paredes orgánicas
+function createWallCluster(baseX, z, side) {
+  const numBlocks = Math.floor(Math.random() * 3) + 3
+  for (let i = 0; i < numBlocks; i++) {
+    const geo = new THREE.DodecahedronGeometry(Math.random() * 1.2 + 0.8)
+    const mesh = new THREE.Mesh(geo, rockMat)
+    mesh.position.set(
+      baseX + (Math.random() - 0.5) * 0.8 * side,
+      Math.random() * 4,
+      z + (Math.random() - 0.5) * 2
+    )
+    mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
+    mesh.castShadow = true
+    mesh.receiveShadow = true
+    scene.add(mesh)
+  }
+}
 
-// Rocas
+for (let z = 2; z > -50; z -= 2.5) {
+  createWallCluster(-5, z, 1)
+  createWallCluster(5, z, -1)
+}
+
+// Rocas en el suelo
 function createRock(x, y, z, scale) {
   const geo = new THREE.DodecahedronGeometry(scale)
   const rock = new THREE.Mesh(geo, rockMat)
@@ -88,7 +102,7 @@ createRock(2, 0.6, -18, 0.7)
 createRock(-3, 0.3, -25, 0.5)
 createRock(3, 0.4, -12, 0.3)
 
-// Estalactitas (techo)
+// Estalactitas
 function createStalactite(x, z, height) {
   const geo = new THREE.ConeGeometry(0.2, height, 6)
   const mesh = new THREE.Mesh(geo, rockMat)
@@ -98,7 +112,7 @@ function createStalactite(x, z, height) {
   scene.add(mesh)
 }
 
-// Estalagmitas (suelo)
+// Estalagmitas
 function createStalagmite(x, z, height) {
   const geo = new THREE.ConeGeometry(0.15, height, 6)
   const mesh = new THREE.Mesh(geo, rockMat)
@@ -110,27 +124,6 @@ function createStalagmite(x, z, height) {
 for (let z = -2; z > -45; z -= 3) {
   createStalactite((Math.random() - 0.5) * 7, z, Math.random() * 2 + 1)
   if (Math.random() > 0.5) createStalagmite((Math.random() - 0.5) * 7, z, Math.random() * 1.5 + 0.5)
-}
-
-// Paredes irregulares
-function createWallRock(x, y, z, scaleX, scaleY, scaleZ) {
-  const geo = new THREE.DodecahedronGeometry(1)
-  const mesh = new THREE.Mesh(geo, rockMat)
-  mesh.position.set(x, y, z)
-  mesh.scale.set(scaleX, scaleY, scaleZ)
-  mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
-  mesh.castShadow = true
-  scene.add(mesh)
-}
-
-// Pared izquierda
-for (let z = 0; z > -45; z -= 4) {
-  createWallRock(-5, Math.random() * 3 + 0.5, z, 0.8, Math.random() * 1.5 + 0.5, 0.5)
-}
-
-// Pared derecha
-for (let z = 0; z > -45; z -= 4) {
-  createWallRock(5, Math.random() * 3 + 0.5, z, 0.8, Math.random() * 1.5 + 0.5, 0.5)
 }
 
 // Cristales
