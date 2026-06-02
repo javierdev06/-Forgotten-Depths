@@ -25,81 +25,179 @@ gltfLoader.load('/professor.glb', (gltf) => {
   console.error('error cargando profesor:', error)
 })
 
-// Cielo atardecer
-scene.background = new THREE.Color(0xff7733)
-scene.fog = new THREE.FogExp2(0xff9944, 0.02)
+// ── CIELO ATARDECER NARANJA/AMARILLO ──
+const skyGeo = new THREE.SphereGeometry(400, 32, 32)
+const skyMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide,
+  uniforms: {
+    topColor:    { value: new THREE.Color(0x1a2a6c) },
+    midColor:    { value: new THREE.Color(0xe8821a) },
+    bottomColor: { value: new THREE.Color(0xffd060) },
+  },
+  vertexShader: `
+    varying vec3 vWorldPosition;
+    void main() {
+      vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+      vWorldPosition = worldPosition.xyz;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform vec3 topColor;
+    uniform vec3 midColor;
+    uniform vec3 bottomColor;
+    varying vec3 vWorldPosition;
+    void main() {
+      float h = normalize(vWorldPosition).y;
+      vec3 color;
+      if (h > 0.1) {
+        color = mix(midColor, topColor, pow(h - 0.1, 0.4));
+      } else {
+        color = mix(bottomColor, midColor, pow((h + 1.0) * 0.9, 0.6));
+      }
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `
+})
+const sky = new THREE.Mesh(skyGeo, skyMat)
+scene.add(sky)
 
-// Suelo exterior
-const groundGeo = new THREE.PlaneGeometry(200, 200)
-const groundMat = new THREE.MeshLambertMaterial({ color: 0x2d4a1e })
+// ── SOL CAYENDO ──
+const sunGeo = new THREE.SphereGeometry(5, 16, 16)
+const sunMat = new THREE.MeshBasicMaterial({ color: 0xffe066 })
+const sun = new THREE.Mesh(sunGeo, sunMat)
+sun.position.set(-55, 12, -200)
+scene.add(sun)
+
+// Halo del sol
+const haloGeo = new THREE.SphereGeometry(9, 16, 16)
+const haloMat = new THREE.MeshBasicMaterial({
+  color: 0xffaa33,
+  transparent: true,
+  opacity: 0.18
+})
+const halo = new THREE.Mesh(haloGeo, haloMat)
+halo.position.copy(sun.position)
+scene.add(halo)
+
+// Niebla cálida naranja suave
+scene.fog = new THREE.FogExp2(0xdd8833, 0.010)
+
+// ── SUELO ──
+const groundGeo = new THREE.PlaneGeometry(200, 200, 30, 30)
+const groundMat = new THREE.MeshLambertMaterial({ color: 0x2a3d15 })
+
+const pos = groundGeo.attributes.position
+for (let i = 0; i < pos.count; i++) {
+  const x = pos.getX(i)
+  const z = pos.getY(i)
+  const y = Math.sin(x * 0.2) * 0.4 + Math.cos(z * 0.15) * 0.3
+  pos.setZ(i, y)
+}
+groundGeo.computeVertexNormals()
+
 const ground = new THREE.Mesh(groundGeo, groundMat)
 ground.rotation.x = -Math.PI / 2
 ground.receiveShadow = true
 introGroup.add(ground)
 
-// Montaña
+// ── MONTAÑAS ──
 function createMountain(x, z, scale) {
   const geo = new THREE.ConeGeometry(scale, scale * 1.5, 8)
-  const mat = new THREE.MeshLambertMaterial({ color: 0x4a3728 })
+  const mat = new THREE.MeshLambertMaterial({ color: 0x4a3828 })
   const mountain = new THREE.Mesh(geo, mat)
   mountain.position.set(x, scale * 0.75, z)
   mountain.castShadow = true
   introGroup.add(mountain)
+
+  const geo2 = new THREE.ConeGeometry(scale * 0.6, scale * 0.8, 8)
+  const mat2 = new THREE.MeshLambertMaterial({ color: 0x332518 })
+  const peak = new THREE.Mesh(geo2, mat2)
+  peak.position.set(x, scale * 1.3, z)
+  introGroup.add(peak)
 }
 
 createMountain(0, -30, 25)
 createMountain(-20, -40, 15)
 createMountain(20, -35, 18)
+createMountain(-40, -50, 20)
+createMountain(35, -45, 12)
 
-// Entrada de la cueva
+// ── ENTRADA DE LA CUEVA ──
 function createCaveEntrance() {
-  const archGeo = new THREE.TorusGeometry(4, 1.5, 8, 16, Math.PI)
-  const archMat = new THREE.MeshLambertMaterial({ color: 0x3a2a10 })
-  const arch = new THREE.Mesh(archGeo, archMat)
-  arch.position.set(0, 4, -15)
-  arch.rotation.z = Math.PI
-  introGroup.add(arch)
+  const rockMat = new THREE.MeshLambertMaterial({ color: 0x3a2e1a })
 
-  const darkGeo = new THREE.CircleGeometry(3.5, 16)
+  const rockLGeo = new THREE.BoxGeometry(4, 10, 3)
+  const rockL = new THREE.Mesh(rockLGeo, rockMat)
+  rockL.position.set(-4.5, 5, -15)
+  introGroup.add(rockL)
+
+  const rockR = new THREE.Mesh(rockLGeo, rockMat)
+  rockR.position.set(4.5, 5, -15)
+  introGroup.add(rockR)
+
+  const topGeo = new THREE.BoxGeometry(11, 3, 3)
+  const top = new THREE.Mesh(topGeo, rockMat)
+  top.position.set(0, 10.5, -15)
+  introGroup.add(top)
+
+  const darkGeo = new THREE.PlaneGeometry(7, 9)
   const darkMat = new THREE.MeshBasicMaterial({ color: 0x000000 })
   const dark = new THREE.Mesh(darkGeo, darkMat)
-  dark.position.set(0, 4, -14.9)
+  dark.position.set(0, 5, -14.4)
   introGroup.add(dark)
+
+  // Luz cálida saliendo de la cueva
+  const caveGlow = new THREE.PointLight(0xff6600, 2, 14)
+  caveGlow.position.set(0, 3, -13)
+  introGroup.add(caveGlow)
 }
 
 createCaveEntrance()
 
-// Arboles
+// ── ÁRBOLES ──
 function createTree(x, z) {
-  const trunkGeo = new THREE.CylinderGeometry(0.2, 0.3, 2, 6)
-  const trunkMat = new THREE.MeshLambertMaterial({ color: 0x4a2f0a })
+  const h = 0.8 + Math.random() * 0.6
+
+  const trunkGeo = new THREE.CylinderGeometry(0.15, 0.25, 2.5 * h, 6)
+  const trunkMat = new THREE.MeshLambertMaterial({ color: 0x3a2008 })
   const trunk = new THREE.Mesh(trunkGeo, trunkMat)
-  trunk.position.set(x, 1, z)
+  trunk.position.set(x, 1.25 * h, z)
   introGroup.add(trunk)
 
-  const leavesGeo = new THREE.ConeGeometry(1.5, 3, 7)
-  const leavesMat = new THREE.MeshLambertMaterial({ color: 0x1a4a1a })
-  const leaves = new THREE.Mesh(leavesGeo, leavesMat)
-  leaves.position.set(x, 3.5, z)
-  introGroup.add(leaves)
+  const colors = [0x1a3d10, 0x1f4d12, 0x153008]
+  const sizes  = [2.2, 1.6, 1.0]
+  const yOff   = [2.2, 3.5, 4.6]
+
+  for (let i = 0; i < 3; i++) {
+    const leavesGeo = new THREE.ConeGeometry(sizes[i] * h, 2.2 * h, 7)
+    const leavesMat = new THREE.MeshLambertMaterial({ color: colors[i] })
+    const leaves = new THREE.Mesh(leavesGeo, leavesMat)
+    leaves.position.set(x, yOff[i] * h, z)
+    introGroup.add(leaves)
+  }
 }
 
-for (let i = 0; i < 30; i++) {
-  const x = (Math.random() - 0.5) * 80
-  const z = (Math.random() - 0.5) * 40 - 10
-  if (Math.abs(x) > 8 || z > -5) createTree(x, z)
+for (let i = 0; i < 40; i++) {
+  const x = (Math.random() - 0.5) * 100
+  const z = (Math.random() - 0.5) * 50 - 10
+  if (Math.abs(x) > 10 || z > -5) createTree(x, z)
 }
 
-// Luz del atardecer
-const sunLight = new THREE.DirectionalLight(0xff7733, 1.5)
-sunLight.position.set(-10, 20, 10)
+// ── ILUMINACIÓN ──
+const sunLight = new THREE.DirectionalLight(0xffcc66, 2.0)
+sunLight.position.set(-55, 12, -100)
 sunLight.castShadow = true
 introGroup.add(sunLight)
 
-const ambientLight = new THREE.AmbientLight(0xff9944, 0.5)
+const skyLight = new THREE.DirectionalLight(0x6688bb, 0.3)
+skyLight.position.set(10, 30, 10)
+introGroup.add(skyLight)
+
+const ambientLight = new THREE.AmbientLight(0xffaa44, 0.5)
 introGroup.add(ambientLight)
 
-// Vehículos abandonados
+// ── JEEPS ──
 function createJeep(x, z) {
   const bodyGeo = new THREE.BoxGeometry(3, 1.2, 5)
   const bodyMat = new THREE.MeshLambertMaterial({ color: 0x4a5a3a })
