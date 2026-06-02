@@ -32,15 +32,17 @@ const floorMat = new THREE.MeshStandardMaterial({
 })
 
 const segments = [
+  { z: 20,   radius: 5,  length: 25 },
   { z: 0,    radius: 5,  length: 25 },
-  { z: -20,  radius: 4,  length: 25 },
-  { z: -40,  radius: 4.5,length: 25 },
+  { z: -20,  radius: 5,  length: 25 },
+  { z: -40,  radius: 5,  length: 25 },
   { z: -60,  radius: 5,  length: 25 },
-  { z: -80,  radius: 6,  length: 25 },
+  { z: -80,  radius: 5,  length: 25 },
   { z: -100, radius: 5,  length: 25 },
   { z: -120, radius: 5,  length: 25 },
-  { z: -140, radius: 4,  length: 25 },
-  { z: -160, radius: 6,  length: 25 },
+  { z: -140, radius: 5,  length: 25 },
+  { z: -160, radius: 5,  length: 25 },
+  { z: -180, radius: 5,  length: 25 },
 ]
 
 segments.forEach(seg => {
