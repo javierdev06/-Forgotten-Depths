@@ -232,32 +232,32 @@ introGroup.add(skyLight)
 const ambientLight = new THREE.AmbientLight(0xffaa44, 0.5)
 introGroup.add(ambientLight)
 
-// ── JEEPS ──
-function createJeep(x, z) {
-  const bodyMat = new THREE.MeshLambertMaterial({ color: 0x4a5a3a })
-  const body = new THREE.Mesh(new THREE.BoxGeometry(3, 1.2, 5), bodyMat)
-  body.position.set(x, 0.8, z)
-  introGroup.add(body)
+// ── JEEPS GLB ──
+const jeepLoader = new GLTFLoader()
+jeepLoader.load('/jeep.glb', (gltf) => {
+  const jeepTemplate = gltf.scene
 
-  const roof = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.8, 2.5), bodyMat)
-  roof.position.set(x, 1.8, z + 0.3)
-  introGroup.add(roof)
+  const positions = [
+    { x: -6, z: -8,  ry: 0.5  },
+    { x:  7, z: -10, ry: -0.8 },
+  ]
 
-  for (let wx of [-1.6, 1.6]) {
-    for (let wz of [-1.5, 1.5]) {
-      const wheel = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.4, 0.4, 0.3, 8),
-        new THREE.MeshLambertMaterial({ color: 0x111111 })
-      )
-      wheel.position.set(x + wx, 0.4, z + wz)
-      wheel.rotation.z = Math.PI / 2
-      introGroup.add(wheel)
-    }
-  }
-}
+  positions.forEach(p => {
+    const jeep = jeepTemplate.clone()
+    jeep.scale.set(0.2, 0.2, 0.2)
+    jeep.position.set(p.x, 0, p.z)
+    jeep.rotation.y = p.ry
 
-createJeep(-6, -8)
-createJeep(7, -10)
+    jeep.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true
+        child.receiveShadow = true
+      }
+    })
+
+    introGroup.add(jeep)
+  })
+})
 
 export function clearIntro() {
   introGroup.visible = false
