@@ -158,6 +158,29 @@ mountainLoader.load('/mountain.glb', (gltf) => {
   })
 })
 
+// ── CUEVA GLB ──
+const caveLoader = new GLTFLoader()
+caveLoader.load('/cave.glb', (gltf) => {
+  const cave = gltf.scene
+  cave.scale.set(3, 3, 3)
+  cave.position.set(0, 3, -9)
+  cave.rotation.y = 0
+
+  cave.traverse((child) => {
+    if (child.isMesh) {
+      child.castShadow = true
+      child.receiveShadow = true
+    }
+  })
+
+  introGroup.add(cave)
+
+  // Luz cálida saliendo de la cueva
+  const caveGlow = new THREE.PointLight(0xff6600, 3, 16)
+  caveGlow.position.set(0, 2, -13)
+  introGroup.add(caveGlow)
+})
+
 
 
 
