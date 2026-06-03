@@ -13,7 +13,7 @@ gltfLoader.load('/professor.glb', (gltf) => {
   console.log('profesor cargado')
   professorModel = gltf.scene
   professorModel.scale.set(1, 1, 1)
-  professorModel.position.set(2, 0, -0.5)
+  professorModel.position.set(2, 0.5, -0.5)
   professorModel.rotation.y = -1
   introGroup.add(professorModel)
 

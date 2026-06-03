@@ -10,8 +10,8 @@ const CAM_POSITIONS = {
   cave:      { pos: new THREE.Vector3(0, 4, 2),    look: new THREE.Vector3(0, 2, -12)  },
 }
 
-const LUCAS_POS     = new THREE.Vector3(0, 0, 0)
-const PROFESSOR_POS = new THREE.Vector3(2, 0, -0.5)
+const LUCAS_POS     = new THREE.Vector3(0, 1.5, 0)
+const PROFESSOR_POS = new THREE.Vector3(2, 0.5, -0.5)
 
 const DIALOGUE = [
   { speaker: 'Profesor Martínez', text: 'Lucas... ¿ves todo esto?',                                                               cam: 'professor', duration: 3500 },

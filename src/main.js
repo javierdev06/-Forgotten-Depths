@@ -24,7 +24,7 @@ document.body.appendChild(fadeDiv)
 
 
 
-camera.position.set(0, 5, 5)
+camera.position.set(0, 2, 5)
 camera.lookAt(0, 2, -10)
 
 function startGame() {

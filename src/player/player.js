@@ -9,7 +9,7 @@ scene.add(flashlight)
 scene.add(flashlight.target)
 
 // Posición de Lucas
-export const lucasPos = new THREE.Vector3(0, 0.5, 0)
+export const lucasPos = new THREE.Vector3(0, 1.2, 0)
 
 // Cinemática de entrada
 let introPlaying = true
@@ -28,6 +28,7 @@ loader.load('/lucas.glb', (gltf) => {
   gltf.animations.forEach((a, i) => console.log(i, a.name))
   lucasModel = gltf.scene
   lucasModel.scale.set(0.8, 0.8, 0.8)
+  lucasModel.position.y = 0.3
   lucasModel.castShadow = true
   scene.add(lucasModel)
 
@@ -90,15 +91,15 @@ let isJumping = false
 let jumpVelocity = 0
 const gravity = -0.01
 const jumpForce = 0.2
-const groundLevel = 0.5
+const groundLevel = 0.8
 
 export function updatePlayer() {
     // Cinemática de caída inicial
     if (introPlaying) {
     introTimer += 0.016
     lucasPos.y -= 0.15
-    if (lucasPos.y <= 0.5) {
-        lucasPos.y = 0.5
+    if (lucasPos.y <= 1.2) {
+        lucasPos.y = 1.2
         introPlaying = false
     }
     if (lucasModel) {
