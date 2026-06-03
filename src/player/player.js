@@ -17,13 +17,15 @@ let introTimer = 0
 const introStartY = 15
 lucasPos.set(0, introStartY, 5)
 
-let lucasModel = null
-let mixer = null
+export let lucasModel = null
+export let mixer = null
 let idleAction = null
 let walkAction = null
 
 const loader = new GLTFLoader()
 loader.load('/lucas.glb', (gltf) => {
+  console.log('Lucas animaciones:', gltf.animations.length)
+  gltf.animations.forEach((a, i) => console.log(i, a.name))
   lucasModel = gltf.scene
   lucasModel.scale.set(0.8, 0.8, 0.8)
   lucasModel.castShadow = true

@@ -2,7 +2,10 @@ import * as THREE from 'three'
 import { scene, camera, renderer } from './core/renderer.js'
 import { updatePlayer, lucasPos } from './player/player.js'
 import { note, updateRockfall, chapter1Group } from './scene/chapter1.js'
-import { introGroup, clearIntro } from './scene/intro.js'
+import { introGroup, clearIntro, professorMixer } from './scene/intro.js'
+import { startDialogue, updateDialogue } from './scene/dialogue.js'
+import * as Player from './player/player.js'
+
 
 let gameState = 'intro'
 const msgDiv = document.getElementById('wall-message')
@@ -27,18 +30,23 @@ camera.lookAt(0, 2, -10)
 function startGame() {
   fadeDiv.style.opacity = '1'
   setTimeout(() => {
-    console.log('limpiando intro...')
-    clearIntro()
-    console.log('introGroup visible:', introGroup.visible)
-    chapter1Group.visible = true
-    scene.background = new THREE.Color(0x000000)
-    scene.fog = new THREE.FogExp2(0x000000, 0.08)
-    lucasPos.set(0, 0.5, 5)
-    camera.position.set(0, 2, 5)
-    camera.lookAt(0, 2, -5)
-    gameState = 'game'
-    setTimeout(() => { fadeDiv.style.opacity = '0' }, 100)
-  }, 1500)
+    fadeDiv.style.opacity = '0'
+    gameState = 'dialogue'
+    startDialogue(() => {
+      fadeDiv.style.opacity = '1'
+      setTimeout(() => {
+        clearIntro()
+        chapter1Group.visible = true
+        scene.background = new THREE.Color(0x000000)
+        scene.fog = new THREE.FogExp2(0x000000, 0.08)
+        lucasPos.set(0, 0.5, 5)
+        camera.position.set(0, 2, 5)
+        camera.lookAt(0, 2, -5)
+        gameState = 'game'
+        setTimeout(() => { fadeDiv.style.opacity = '0' }, 100)
+      }, 1500)
+    })
+  }, 1000)
 }
 
 window.addEventListener('keydown', (e) => {
@@ -55,6 +63,18 @@ window.addEventListener('keydown', (e) => {
 
 function animate() {
   requestAnimationFrame(animate)
+  if (professorMixer) professorMixer.update(0.016)
+
+  if (gameState === 'dialogue' || gameState === 'intro') {
+    if (Player.mixer) Player.mixer.update(0.016)
+    if (professorMixer) professorMixer.update(0.016)
+  }
+
+  if (gameState === 'dialogue') {
+    updateDialogue(16)
+  }
+
+  
 
   if (gameState === 'game') {
     updatePlayer()
@@ -67,5 +87,4 @@ function animate() {
 
   renderer.render(scene, camera)
 }
-
 animate()

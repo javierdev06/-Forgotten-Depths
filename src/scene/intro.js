@@ -7,17 +7,20 @@ scene.add(introGroup)
 
 const gltfLoader = new GLTFLoader()
 export let professorMixer = null
+export let professorModel = null
 
 gltfLoader.load('/professor.glb', (gltf) => {
   console.log('profesor cargado')
-  const professor = gltf.scene
-  professor.scale.set(1, 1, 1)
-  professor.position.set(2, 0, -0.5)
-  professor.rotation.y = -1
-  introGroup.add(professor)
+  professorModel = gltf.scene
+  professorModel.scale.set(1, 1, 1)
+  professorModel.position.set(2, 0, -0.5)
+  professorModel.rotation.y = -1
+  introGroup.add(professorModel)
 
+  professorMixer = new THREE.AnimationMixer(professorModel)
   if (gltf.animations.length > 0) {
-    professorMixer = new THREE.AnimationMixer(professor)
+    console.log('Animaciones del profesor:', gltf.animations.length)
+    gltf.animations.forEach((a, i) => console.log(i, a.name))
     const idle = professorMixer.clipAction(gltf.animations[0])
     idle.play()
   }
