@@ -10,7 +10,7 @@ const CAM_POSITIONS = {
   cave:      { pos: new THREE.Vector3(0, 4, 2),    look: new THREE.Vector3(0, 2, -12)  },
 }
 
-const LUCAS_POS     = new THREE.Vector3(0, 1.5, 0)
+const LUCAS_POS     = new THREE.Vector3(0, 0.3, 0)
 const PROFESSOR_POS = new THREE.Vector3(2, 0.5, -0.5)
 
 const DIALOGUE = [
@@ -95,15 +95,25 @@ function updateCharacters(delta) {
 
   if (!lucasModel || !professorModel) return
 
-  const lucasTargetRY = currentSpeaker === 'Lucas' ? Math.PI + 0.3 : 0.3
+  // Lucas siempre mira al profesor
+  const dirToProf = new THREE.Vector3(
+    PROFESSOR_POS.x - LUCAS_POS.x,
+    0,
+    PROFESSOR_POS.z - LUCAS_POS.z
+  )
+  const lucasTargetRY = Math.atan2(dirToProf.x, dirToProf.z)
   lucasModel.rotation.y += (lucasTargetRY - lucasModel.rotation.y) * 0.05
-  lucasModel.position.x = LUCAS_POS.x
-  lucasModel.position.z = LUCAS_POS.z
+  lucasModel.position.set(LUCAS_POS.x, LUCAS_POS.y, LUCAS_POS.z)
 
-  const profTargetRY = currentSpeaker === 'Profesor Martínez' ? -1.2 : -0.8
+  // Profesor siempre mira a Lucas
+  const dirToLucas = new THREE.Vector3(
+    LUCAS_POS.x - PROFESSOR_POS.x,
+    0,
+    LUCAS_POS.z - PROFESSOR_POS.z
+  )
+  const profTargetRY = Math.atan2(dirToLucas.x, dirToLucas.z)
   professorModel.rotation.y += (profTargetRY - professorModel.rotation.y) * 0.05
-  professorModel.position.x = PROFESSOR_POS.x
-  professorModel.position.z = PROFESSOR_POS.z
+  professorModel.position.set(PROFESSOR_POS.x, PROFESSOR_POS.y, PROFESSOR_POS.z)
 }
 
 // ── ESTADO ──

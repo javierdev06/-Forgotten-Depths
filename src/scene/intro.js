@@ -209,7 +209,7 @@ for (let i = 0; i < 35; i++) {
     const tree = treeTemplate.clone()
     const scale = 0.25 + seededRandom(i * 3) * 0.1
     tree.scale.set(scale, scale, scale)
-    tree.position.set(x, 0, z)
+    tree.position.set(x, -1, z)
     tree.rotation.y = seededRandom(i * 4) * Math.PI * 2
     tree.traverse((child) => {
       if (child.isMesh) {
