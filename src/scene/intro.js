@@ -48,9 +48,9 @@ const skyGeo = new THREE.SphereGeometry(400, 32, 32)
 const skyMat = new THREE.ShaderMaterial({
   side: THREE.BackSide,
   uniforms: {
-    topColor:    { value: new THREE.Color(0x0d1b4a) },
-    midColor:    { value: new THREE.Color(0xd4660a) },
-    bottomColor: { value: new THREE.Color(0xffb347) },
+    topColor:    { value: new THREE.Color(0x0a1628) },
+    midColor:    { value: new THREE.Color(0xf5a020) },
+    bottomColor: { value: new THREE.Color(0xffd700) },
   },
   vertexShader: `
     varying vec3 vWorldPosition;
@@ -69,7 +69,7 @@ const skyMat = new THREE.ShaderMaterial({
       float h = normalize(vWorldPosition).y;
       vec3 color;
       if (h > 0.1) {
-        color = mix(midColor, topColor, pow(h - 0.1, 0.4));
+        color = mix(midColor, topColor, pow(h - 0.1, 0.25));
       } else {
         color = mix(bottomColor, midColor, pow((h + 1.0) * 0.9, 0.6));
       }
@@ -93,7 +93,7 @@ const halo = new THREE.Mesh(haloGeo, haloMat)
 halo.position.copy(sun.position)
 scene.add(halo)
 
-scene.fog = new THREE.FogExp2(0xdd8833, 0.010)
+scene.fog = new THREE.FogExp2(0xf0a030, 0.008)
 
 // ── SUELO CON GRASS ──
 const groundGeo = new THREE.PlaneGeometry(200, 200, 40, 40)
@@ -129,102 +129,39 @@ dirt.rotation.x = -Math.PI / 2
 dirt.position.set(0, 0.01, -12)
 introGroup.add(dirt)
 
-// ── MONTAÑAS REALISTAS ──
-function createMountain(x, z, scale) {
-  const geo = new THREE.ConeGeometry(scale, scale * 1.6, 12)
-  const pos = geo.attributes.position
-  for (let i = 0; i < pos.count; i++) {
-    const y = pos.getY(i)
-    if (y < scale * 0.7) {
-      const angle = Math.atan2(pos.getZ(i), pos.getX(i))
-      const noise = 1 + (Math.sin(angle * 3 + x) * 0.15) + (Math.cos(angle * 5 + z) * 0.1)
-      pos.setX(i, pos.getX(i) * noise)
-      pos.setZ(i, pos.getZ(i) * noise)
-      pos.setY(i, y + (Math.random() - 0.5) * scale * 0.08)
-    }
-  }
-  geo.computeVertexNormals()
-  const mat = new THREE.MeshLambertMaterial({ color: 0x4a3828 })
-  const mountain = new THREE.Mesh(geo, mat)
-  mountain.position.set(x, scale * 0.8, z)
-  mountain.castShadow = true
-  introGroup.add(mountain)
+// ── MONTAÑAS GLB ──
+const mountainLoader = new GLTFLoader()
+mountainLoader.load('/mountain.glb', (gltf) => {
+  const mountainTemplate = gltf.scene
 
-  const geo2 = new THREE.ConeGeometry(scale * 0.45, scale * 0.7, 10)
-  const pos2 = geo2.attributes.position
-  for (let i = 0; i < pos2.count; i++) {
-    const angle = Math.atan2(pos2.getZ(i), pos2.getX(i))
-    const noise = 1 + Math.sin(angle * 4 + x) * 0.12
-    pos2.setX(i, pos2.getX(i) * noise)
-    pos2.setZ(i, pos2.getZ(i) * noise)
-  }
-  geo2.computeVertexNormals()
-  const mat2 = new THREE.MeshLambertMaterial({ color: 0x2a1e10 })
-  const peak = new THREE.Mesh(geo2, mat2)
-  peak.position.set(x, scale * 1.35, z)
-  introGroup.add(peak)
-
-  for (let r = 0; r < 5; r++) {
-    const angle = (r / 5) * Math.PI * 2
-    const dist = scale * 0.7 + Math.random() * scale * 0.3
-    const rx = x + Math.cos(angle) * dist
-    const rz = z + Math.sin(angle) * dist
-    const rs = scale * (0.08 + Math.random() * 0.1)
-    const rockGeo = new THREE.DodecahedronGeometry(rs, 0)
-    const rock = new THREE.Mesh(rockGeo, new THREE.MeshLambertMaterial({ color: 0x3a2e1a }))
-    rock.position.set(rx, rs * 0.5, rz)
-    rock.rotation.set(Math.random(), Math.random(), Math.random())
-    introGroup.add(rock)
-  }
-}
-
-createMountain(0,   -30, 12)
-createMountain(-20, -40, 15)
-createMountain(20,  -35, 18)
-createMountain(-40, -50, 20)
-createMountain(35,  -45, 12)
-
-// ── ENTRADA DE LA CUEVA ──
-function createCaveEntrance() {
-  const rockMat = new THREE.MeshLambertMaterial({ color: 0x3a2e1a })
-
-  // Rocas irregulares alrededor de la entrada
-  const sizes = [
-    { w: 3, h: 6,  d: 3, x: -4,  y: 3,   z: -10 },
-    { w: 3, h: 5,  d: 3, x:  4,  y: 2.5, z: -10 },
-    { w: 2, h: 3,  d: 2, x: -6,  y: 1.5, z: -9  },
-    { w: 2, h: 3,  d: 2, x:  6,  y: 1.5, z: -9  },
-    { w: 7, h: 2,  d: 3, x:  0,  y: 7,   z: -10 },
-    { w: 3, h: 2,  d: 2, x: -2,  y: 8.5, z: -9  },
-    { w: 3, h: 2,  d: 2, x:  2,  y: 8.5, z: -9  },
+  const positions = [
+    { x: 0,   z: -50, s: 18 },
+    { x: -22, z: -58, s: 13 },
+    { x: 22,  z: -54, s: 15 },
+    { x: -42, z: -65, s: 17 },
+    { x: 38,  z: -62, s: 11 },
   ]
-  
+  positions.forEach((p, i) => {
+    const mountain = mountainTemplate.clone()
+    mountain.scale.set(p.s, p.s, p.s)
+    mountain.position.set(p.x, 0, p.z)
+    mountain.rotation.y = i * 1.2
 
-  sizes.forEach(s => {
-    const rock = new THREE.Mesh(
-      new THREE.BoxGeometry(s.w, s.h, s.d),
-      rockMat
-    )
-    rock.position.set(s.x, s.y, s.z)
-    rock.rotation.y = (Math.random() - 0.5) * 0.3
-    introGroup.add(rock)
+    mountain.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true
+        child.receiveShadow = true
+      }
+    })
+
+    introGroup.add(mountain)
   })
+})
 
-  // Oscuridad interior
-  const dark = new THREE.Mesh(
-    new THREE.PlaneGeometry(7, 9),
-    new THREE.MeshBasicMaterial({ color: 0x000000 })
-  )
-  dark.position.set(0, 4.5, -9.4)
-  introGroup.add(dark)
 
-  // Luz cálida saliendo
-  const caveGlow = new THREE.PointLight(0xff6600, 3, 16)
-  caveGlow.position.set(0, 3, -8)
-  introGroup.add(caveGlow)
-}
 
-createCaveEntrance()
+
+
 
 // ── ÁRBOLES GLB ──
 const treeLoader = new GLTFLoader()
