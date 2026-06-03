@@ -7,7 +7,62 @@ import { startDialogue, updateDialogue } from './scene/dialogue.js'
 import * as Player from './player/player.js'
 
 
-let gameState = 'intro'
+// ── MENÚ PRINCIPAL ──
+const mainMenu = document.getElementById('main-menu')
+const btnNewGame = document.getElementById('btn-new-game')
+const btnContinue = document.getElementById('btn-continue')
+const btnOptions = document.getElementById('btn-options')
+
+let gameState = 'menu'
+
+btnNewGame.addEventListener('click', () => {
+  mainMenu.style.opacity = '0'
+  mainMenu.style.transition = 'opacity 1.5s'
+  setTimeout(() => {
+    mainMenu.style.display = 'none'
+    gameState = 'intro'
+  }, 1500)
+})
+
+btnContinue.addEventListener('click', () => {
+  // Por ahora igual que nueva partida
+  mainMenu.style.opacity = '0'
+  mainMenu.style.transition = 'opacity 1.5s'
+  setTimeout(() => {
+    mainMenu.style.display = 'none'
+    gameState = 'intro'
+  }, 1500)
+})
+
+btnOptions.addEventListener('click', () => {
+  alert('Opciones próximamente')
+})
+
+
+let gameState = 'menu'
+
+// ── MENÚ PRINCIPAL ──
+const mainMenu = document.getElementById('main-menu')
+
+document.getElementById('btn-new-game').addEventListener('click', () => {
+  mainMenu.style.opacity = '0'
+  setTimeout(() => {
+    mainMenu.style.display = 'none'
+    gameState = 'intro'
+  }, 1500)
+})
+
+document.getElementById('btn-continue').addEventListener('click', () => {
+  mainMenu.style.opacity = '0'
+  setTimeout(() => {
+    mainMenu.style.display = 'none'
+    gameState = 'intro'
+  }, 1500)
+})
+
+document.getElementById('btn-options').addEventListener('click', () => {
+  alert('Opciones próximamente')
+})
 const msgDiv = document.getElementById('wall-message')
 
 const fadeDiv = document.createElement('div')
